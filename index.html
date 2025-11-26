@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Secure Quiz</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+.hidden { display: none; }
+.warning { color: red; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<div id="user-info">
+  <h2>Enter Your Details</h2>
+  <label>Name:</label><br>
+  <input id="name"><br><br>
+
+  <label>Application ID:</label><br>
+  <input id="appId"><br><br>
+
+  <button onclick="startTest()">Start Test</button>
+</div>
+
+
+<div id="quiz" class="hidden">
+  <h2>Quiz Started</h2>
+  <p class="warning" id="warning"></p>
+
+  <h3>1. 2 + 2 = ?</h3>
+  <input type="radio" name="q1" value="3">3<br>
+  <input type="radio" name="q1" value="4">4<br>
+  <input type="radio" name="q1" value="5">5<br><br>
+
+  <h3>2. Capital of India?</h3>
+  <input type="radio" name="q2" value="Mumbai">Mumbai<br>
+  <input type="radio" name="q2" value="Delhi">Delhi<br>
+  <input type="radio" name="q2" value="Chennai">Chennai<br><br>
+
+  <button onclick="submitTest()">Submit</button>
+</div>
+
+
+<div id="result" class="hidden">
+  <h2>Result</h2>
+  <p id="scoreMsg"></p>
+  <p id="percentMsg"></p>
+</div>
+
+<script>
+// ------------------ CONFIG ------------------
+const correctAnswers = {
+  q1: "4",
+  q2: "Delhi"
+};
+
+var userName, appId;
+var violations = 0;
+var examStarted = false;
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwQHK7_yJ4yRpTACxcyW7PRtJsU6ZsXL4ekci7LclbndxUAlcJK_C8JtD7trP2dU1hZ/exec"; // <<--- IMPORTANT
+
+// ------------------ START TEST ------------------
+function startTest() {
+  userName = document.getElementById("name").value;
+  appId = document.getElementById("appId").value;
+
+  if (!userName || !appId) {
+    alert("Please enter all details");
+    return;
+  }
+
+  document.getElementById("user-info").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+
+  examStarted = true;
+  enterFullscreen();
+}
+
+// ------------------ FULLSCREEN ------------------
+function enterFullscreen() {
+  document.documentElement.requestFullscreen().catch(()=>{});
+}
+
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && examStarted) {
+    violations++;
+    document.getElementById("warning").innerHTML =
+      "You exited fullscreen! Test submitted automatically.";
+
+    submitTest();
+  }
+});
+
+// ------------------ SUBMIT TEST ------------------
+function submitTest() {
+  let score = 0;
+  let total = Object.keys(correctAnswers).length;
+
+  for (let q in correctAnswers) {
+    let selected = document.querySelector("input[name=" + q + "]:checked");
+    if (selected && selected.value === correctAnswers[q]) score++;
+  }
+
+  let percent = (score / total) * 100;
+
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+
+  document.getElementById("scoreMsg").innerHTML = "Correct: " + score + "/" + total;
+  document.getElementById("percentMsg").innerHTML = "Percentage: " + percent + "%";
+
+  sendToGoogleSheet(score, percent);
+}
+
+// ------------------ SAVE TO GOOGLE SHEET ------------------
+function sendToGoogleSheet(score, percent) {
+  fetch(GOOGLE_SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      name: userName,
+      appId: appId,
+      score: score,
+      percentage: percent,
+      violations: violations
+    }),
+    headers: {
+      "Content-Type": "text/plain"
+    }
+  })
+  .then(r => r.text())
+  .then(res => console.log("Saved:", res))
+  .catch(err => console.error("Error:", err));
+}
+</script>
+
+</body>
+</html>
