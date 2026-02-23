@@ -43,7 +43,7 @@ with speech synthesis to create more human-like AI communication.
 ------------------------------------------------------------------------
 
 ## 📂 Project Structure
-
+'''
 empathy_engine/
 │
 ├── app/
@@ -56,7 +56,7 @@ empathy_engine/
 │       └── index.html
 │
 └── README.md
-
+'''
 ------------------------------------------------------------------------
 
 ## ⚙️ Setup Instructions (Windows + Conda)
