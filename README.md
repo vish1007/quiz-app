@@ -44,8 +44,18 @@ with speech synthesis to create more human-like AI communication.
 
 ## 📂 Project Structure
 
-empathy_engine/ │ ├── app/ │ ├── main.py │ ├── emotion_detector.py │ ├──
-tts_engine.py │ ├── static/ │ └── templates/ │ └── index.html
+empathy_engine/
+│
+├── app/
+│   ├── main.py
+│   ├── emotion_detector.py
+│   ├── tts_engine.py
+│   ├── static/
+│   │   └── (generated audio files)
+│   └── templates/
+│       └── index.html
+│
+└── README.md
 
 ------------------------------------------------------------------------
 
