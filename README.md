@@ -181,5 +181,5 @@ human-centered AI voice interaction.
 
 ## 👨‍💻 Author
 
-Vishal Singh\
+Santanu Pal\
 AI Systems Developer
